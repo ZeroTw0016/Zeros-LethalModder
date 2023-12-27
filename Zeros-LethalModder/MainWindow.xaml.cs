@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Media;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,20 +36,27 @@ namespace Zeros_LethalModder
             {
                 Directory.CreateDirectory(selfPath);
             }
-            string[] zipFiles = Directory.GetFiles(selfPath, "*");
+            string[] Files = Directory.GetFiles(selfPath, "*");
+            string[] Directories = Directory.GetDirectories(selfPath, "*");
 
-            foreach (string zipFile in zipFiles)
+            foreach (string file in Files)
             {
-                if(!zipFile.Contains(".xml"))
+                if(!file.Contains(".xml"))
                 {
-                    File.Delete(zipFile);
+                    File.Delete(file);
                 }
             }
+            foreach (string dir in Directories)
+            {
+                Directory.Delete(dir, true);
+            }
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
             InitializeComponent();
             client = new WebClient();
             client.DownloadProgressChanged += WebClientDownloadProgressChanged;
             client.DownloadFileCompleted += WebClientDownloadFileCompleted;
             pBar = downloadProgressBar;
+            ProgressText.HorizontalContentAlignment = HorizontalAlignment.Center;
 
             if (!File.Exists(configFile))
             {
@@ -67,13 +78,13 @@ namespace Zeros_LethalModder
                     xmlDoc.Load(configFile);
 
                     XmlNode GameFolderNode = xmlDoc.SelectSingleNode("/Configuration/GameFolder");
-                    gameFolderpathData = GameFolderNode.InnerText;
-                    folderPath.Content = gameFolderpathData;
-                    string path = folderPath.Content.ToString();
-                    Thickness Margin = GameFolderSelect.Margin;
-                    var formatted = new FormattedText(path, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface(folderPath.FontFamily, folderPath.FontStyle, folderPath.FontWeight, folderPath.FontStretch), folderPath.FontSize, folderPath.Foreground, VisualTreeHelper.GetDpi(this).PixelsPerDip);
-                    Margin.Left = 187 + formatted.Width + 10;
-                    GameFolderSelect.Margin = Margin;
+                    if(GameFolderNode.InnerText.Length > 0)
+                    {
+                        gameFolderpathData = GameFolderNode.InnerText;
+                        folderPath.Content = gameFolderpathData;
+                        folderPath.ToolTip = gameFolderpathData;
+                        Setup_Button.IsEnabled = true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -86,10 +97,6 @@ namespace Zeros_LethalModder
         {
             // Update the progress bar
             pBar.Value = e.ProgressPercentage;
-            if(e.ProgressPercentage == 100)
-            {
-                //MessageBox.Show("Download complete","Download",MessageBoxButton.OK, MessageBoxImage.Information);
-            }
         }
 
         private void WebClientDownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
@@ -149,14 +156,15 @@ namespace Zeros_LethalModder
             var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
             if (dialog.ShowDialog(this).GetValueOrDefault())
             {
-                folderPath.Content = dialog.SelectedPath;
-                string path = folderPath.Content.ToString();
-                Thickness Margin = GameFolderSelect.Margin;
-                var formatted = new FormattedText(path, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface(folderPath.FontFamily, folderPath.FontStyle, folderPath.FontWeight, folderPath.FontStretch), folderPath.FontSize, folderPath.Foreground, VisualTreeHelper.GetDpi(this).PixelsPerDip);
-                Margin.Left = 187 + formatted.Width + 10;
-                GameFolderSelect.Margin = Margin;
-                gameFolderpathData = path;
-                UpdateConfig();
+                if(dialog.SelectedPath.Contains("Lethal Company"))
+                {
+                    folderPath.Content = dialog.SelectedPath;
+                    string path = folderPath.Content.ToString();
+                    gameFolderpathData = path;
+                    folderPath.ToolTip = gameFolderpathData;
+                    UpdateConfig();
+                    Setup_Button.IsEnabled = true;
+                }
             }
         }
 
@@ -214,8 +222,79 @@ namespace Zeros_LethalModder
 
         private async void fullSetup(object sender, RoutedEventArgs e)
         {
+            ProgressText.Content = "Downloading BepInEx";
             DownloadBepInEx(sender, e);
+            await Task.Delay(1000);
+            while (File.Exists(selfPath + "/BepInEx.zip"))
+            {
+                await Task.Delay(1000);
+            }
+            await Task.Delay(1000);
+            pBar.Value = 0;
+            ProgressText.Content = "Downloading Modpack";
             DownloadModpack(sender, e);
+            await Task.Delay(1000);
+            while (File.Exists(selfPath + "/Zeros-Lethal-Modpack.zip"))
+            {
+                await Task.Delay(1000);
+            }
+            ProgressText.Content = "Setting up BepInEx";
+            string[] deleteMatch = { "winhttp.dll", "doorstop_config.ini", "changelog.txt", "BepInEx" };
+            foreach (string match in deleteMatch)
+            {
+                string s = "\\" + match;
+                if(!match.Contains("."))
+                {
+                    if(Directory.Exists(gameFolderpathData + s))
+                    {
+                        Directory.Delete(gameFolderpathData + s, true);
+                    }
+                }
+                else
+                {
+                    if(File.Exists(gameFolderpathData + s))
+                    {
+                        File.Delete(gameFolderpathData + s);
+                    }
+                }
+            }
+
+            await Task.Delay(1000);
+
+            foreach (var path in deleteMatch)
+            {
+                if(path.Contains("."))
+                {
+                    File.Move(selfPath + "\\BepInEx\\" + path, gameFolderpathData + "\\" + path);
+                }
+                else
+                {
+                    Directory.Move(selfPath + "\\BepInEx\\" + path, gameFolderpathData + "\\" + path);
+                }
+            }
+            ProgressText.Content = "Temporarily starting Game";
+            var LethalCompany = Process.Start(gameFolderpathData + "\\Lethal Company.exe");
+            await Task.Delay(15000);
+            LethalCompany.Kill();
+            ProgressText.Content = "Killed Game";
+            Directory.Delete(selfPath + "\\BepInEx", true);
+            ProgressText.Content = "Setting up Modpack";
+            string[] contents = Directory.GetDirectories(selfPath + "\\Zeros-Lethal-Modpack");
+
+            foreach (string dir in contents)
+            {
+                string destination = gameFolderpathData + "\\BepInEx\\" + dir.Split('\\').Last();
+                if (Directory.Exists(destination))
+                {
+                    Directory.Delete(destination, true);
+                }
+                Directory.Move(dir, destination);
+            }
+
+            Directory.Delete(selfPath + "\\Zeros-Lethal-Modpack", true);
+            await Task.Delay(1000);
+            ProgressText.Content = "Done";
+            SystemSounds.Beep.Play();
         }
     }
 }

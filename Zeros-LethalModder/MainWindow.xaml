@@ -5,14 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Zeros_LethalModder"
         mc:Ignorable="d"
-        Title="Zero's Lethal Modder" Height="450" Width="800" ResizeMode="NoResize">
+        Title="Zero's Lethal Modder" Height="150" Width="335" ResizeMode="NoResize">
     <Grid>
-        <Label Content="LethalComapany Game Folder:" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="folderPath" Content="" HorizontalAlignment="Left" Margin="180,50,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="GameFolderSelect" Content="Select" HorizontalAlignment="Left" Margin="187,53,0,0" VerticalAlignment="Top" Width="82" Click="GameFolderSelect_Click"/>
-        <ProgressBar x:Name="downloadProgressBar" HorizontalAlignment="Left" Height="20" Margin="10,140,0,0" VerticalAlignment="Top" Width="300"/>
-        <Button Content="Install / Update Modpack" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Click="DownloadModpack"/>
-        <Button Content="Install BepInEx" HorizontalAlignment="Left" Margin="230,110,0,0" VerticalAlignment="Top" Click="DownloadBepInEx"/>
-        <Button Content="Full Setup" HorizontalAlignment="Left" Margin="153,110,0,0" VerticalAlignment="Top" Click="fullSetup" Width="72"/>
+        <Label Content="LethalComapany Game Folder:" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="folderPath" Content="" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="300"/>
+        <Button x:Name="GameFolderSelect" Content="Select" HorizontalAlignment="Left" Margin="228,8,0,0" VerticalAlignment="Top" Width="82" Click="GameFolderSelect_Click"/>
+        <ProgressBar x:Name="downloadProgressBar" HorizontalAlignment="Left" Height="20" Margin="10,87,0,0" VerticalAlignment="Top" Width="300"/>
+        <Button x:Name="Setup_Button" Content="Full Setup" HorizontalAlignment="Left" Margin="10,62,0,0" VerticalAlignment="Top" Click="fullSetup" Width="300" IsEnabled="False"/>
+        <Label x:Name="ProgressText" Content="" HorizontalAlignment="Left" Margin="10,84,0,0" VerticalAlignment="Top" Width="300"/>
     </Grid>
 </Window>
