@@ -1,0 +1,15 @@
+﻿<Window x:Class="Zeros_LethalModder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Zeros_LethalModder"
+        mc:Ignorable="d"
+        Title="Zero's Lethal Modder" Height="450" Width="800" ResizeMode="NoResize">
+    <Grid>
+        <Label Content="LethalComapany Game Folder:" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="folderPath" Content="" HorizontalAlignment="Left" Margin="180,50,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="GameFolderSelect" Content="Select" HorizontalAlignment="Left" Margin="187,53,0,0" VerticalAlignment="Top" Width="82" Click="GameFolderSelect_Click"/>
+
+    </Grid>
+</Window>
