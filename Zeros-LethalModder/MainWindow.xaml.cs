@@ -41,7 +41,7 @@ namespace Zeros_LethalModder
 
             foreach (string file in Files)
             {
-                if(!file.Contains(".xml"))
+                if(!file.Contains(".xml") && !file.Contains(".exe"))
                 {
                     File.Delete(file);
                 }
