@@ -95,7 +95,6 @@ namespace Zeros_LethalModder
 
         private void WebClientDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            // Update the progress bar
             pBar.Value = e.ProgressPercentage;
         }
 
@@ -118,7 +117,6 @@ namespace Zeros_LethalModder
                         {
                             string entryPath = Path.Combine(zipFile.Replace(".zip",""), entry.Name);
 
-                            // Ensure the directory for the entry exists
                             Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
 
                             if (!entry.IsDirectory)
