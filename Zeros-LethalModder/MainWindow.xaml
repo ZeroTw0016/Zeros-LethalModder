@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Zeros_LethalModder"
         mc:Ignorable="d"
-        Title="Zero's Lethal Modder" Height="150" Width="335" ResizeMode="NoResize">
+        Title="Zero's Lethal Modder" Height="150" Width="335" ResizeMode="NoResize" Icon="/lethal-modded.ico">
     <Grid>
         <Label Content="LethalComapany Game Folder:" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
         <Label x:Name="folderPath" Content="" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="300"/>
