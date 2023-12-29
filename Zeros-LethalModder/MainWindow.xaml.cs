@@ -243,7 +243,7 @@ namespace Zeros_LethalModder
                 string s = "\\" + match;
                 if(!match.Contains("."))
                 {
-                    if(Directory.Exists(gameFolderpathData + s))
+                    if(Directory.Exists(gameFolderpathData + s) && !s.Contains(".git"))
                     {
                         Directory.Delete(gameFolderpathData + s, true);
                     }
@@ -293,6 +293,12 @@ namespace Zeros_LethalModder
             await Task.Delay(1000);
             ProgressText.Content = "Done";
             SystemSounds.Beep.Play();
+
+            if(startcheckbox.IsChecked == true)
+            {
+                Process.Start(gameFolderpathData + "\\Lethal Company.exe");
+                this.Close();
+            }
         }
     }
 }

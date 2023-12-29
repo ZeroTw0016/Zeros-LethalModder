@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Zeros_LethalModder"
         mc:Ignorable="d"
-        Title="Zero's Lethal Modder" Height="150" Width="335" ResizeMode="NoResize" Icon="/lethal-modded.ico">
+        Title="Zero's Lethal Modder" Height="175" Width="335" ResizeMode="NoResize" Icon="/lethal-modded.ico">
     <Grid>
         <Label Content="LethalComapany Game Folder:" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
         <Label x:Name="folderPath" Content="" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="300"/>
@@ -13,5 +13,6 @@
         <ProgressBar x:Name="downloadProgressBar" HorizontalAlignment="Left" Height="20" Margin="10,87,0,0" VerticalAlignment="Top" Width="300"/>
         <Button x:Name="Setup_Button" Content="Full Setup" HorizontalAlignment="Left" Margin="10,62,0,0" VerticalAlignment="Top" Click="fullSetup" Width="300" IsEnabled="False"/>
         <Label x:Name="ProgressText" Content="" HorizontalAlignment="Left" Margin="10,84,0,0" VerticalAlignment="Top" Width="300"/>
+        <CheckBox x:Name="startcheckbox" Content="Start Game when done (will close this window)" HorizontalAlignment="Left" Margin="10,115,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>
