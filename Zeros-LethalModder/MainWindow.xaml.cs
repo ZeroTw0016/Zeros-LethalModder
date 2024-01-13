@@ -21,8 +21,10 @@ namespace Zeros_LethalModder
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static string installedVersion = "1.0.2";
+        private static string Webversion = "";
         private static WebClient client;
-        static string modpackURL = "https://github.com/ZeroTw0016/file-storage/raw/main/lethalCompany/Zeros-Lethal-Modpack.zip?download=";
+        static string modpackURL = "http://file-server.zerotwo.eu.org:8181/Zeros-Lethal-Modpack.zip";
         static string bepinExUrl = "https://github.com/BepInEx/BepInEx/releases/download/v5.4.22/BepInEx_x64_5.4.22.0.zip";
         static string selfPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "/ZeroModded";
         static string configFile = selfPath + "/config.xml";
@@ -30,7 +32,22 @@ namespace Zeros_LethalModder
         static ProgressBar pBar;
         static CheckBox startBox;
         static bool downloadRunning = false;
+        static int selfUpdateDownload = 0;
+        static bool selfUpdating = false;
 
+        private static async void SelfUpdate()
+        {
+            if (!downloadRunning)
+            {
+                selfUpdateDownload = 1;
+                client.DownloadFileAsync(new Uri("https://github.com/ZeroTw0016/published-programms/raw/main/lethal-company/Zeros-LethalModder.exe"), selfPath + "\\Zeros-LethalModder_New.exe");
+                downloadRunning = true;
+                await Task.Delay(3000);
+                client.DownloadFileAsync(new Uri("https://raw.githubusercontent.com/ZeroTw0016/published-programms/main/lethal-company/update.exe"), selfPath + "\\update.exe");
+                downloadRunning = true;
+            }
+            await Task.Delay(3000);
+        }
         public MainWindow()
         {
             if (!Directory.Exists(selfPath))
@@ -42,7 +59,7 @@ namespace Zeros_LethalModder
 
             foreach (string file in Files)
             {
-                if(!file.Contains(".xml") && !file.Contains(".exe"))
+                if(!file.Contains(".xml") && !file.Contains("LethalModder.exe"))
                 {
                     File.Delete(file);
                 }
@@ -51,11 +68,28 @@ namespace Zeros_LethalModder
             {
                 Directory.Delete(dir, true);
             }
+
+
+
+            using (WebClient client = new WebClient())
+            {
+                string downloadString = client.DownloadString("https://raw.githubusercontent.com/ZeroTw0016/published-programms/main/versions.txt");
+                Webversion = downloadString.Split('\n').Where(s => s.Contains("lethal-modder=")).First().Replace("lethal-modder=","");
+            }
+
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
             InitializeComponent();
             client = new WebClient();
             client.DownloadProgressChanged += WebClientDownloadProgressChanged;
             client.DownloadFileCompleted += WebClientDownloadFileCompleted;
+
+            if (installedVersion != Webversion)
+            {
+                selfUpdating = true;
+                this.Visibility = Visibility.Hidden;
+                SelfUpdate();
+            }
+
             pBar = downloadProgressBar;
             startBox = startcheckbox;
             ProgressText.HorizontalContentAlignment = HorizontalAlignment.Center;
@@ -119,34 +153,50 @@ namespace Zeros_LethalModder
             }
             else
             {
-                string zipFile = Directory.GetFiles(selfPath, "*.zip")[0];
-                try
+                if(selfUpdateDownload != 0)
                 {
-                    using (ZipInputStream zipStream = new ZipInputStream(File.OpenRead(zipFile)))
+                    if(selfUpdateDownload == 2)
                     {
-                        ZipEntry entry;
-                        while ((entry = zipStream.GetNextEntry()) != null)
+                        var LethalModder = Process.Start(selfPath + "\\update.exe");
+                        this.Close();
+                    }
+                    else
+                    {
+                        selfUpdateDownload = 2;
+                    }
+                }
+                else
+                {
+                    string zipFile = Directory.GetFiles(selfPath, "*.zip")[0];
+                    try
+                    {
+                        using (ZipInputStream zipStream = new ZipInputStream(File.OpenRead(zipFile)))
                         {
-                            string entryPath = Path.Combine(zipFile.Replace(".zip",""), entry.Name);
-
-                            Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
-
-                            if (!entry.IsDirectory)
+                            ZipEntry entry;
+                            while ((entry = zipStream.GetNextEntry()) != null)
                             {
-                                using (FileStream entryStream = File.Create(entryPath))
+                                string entryPath = Path.Combine(zipFile.Replace(".zip", ""), entry.Name);
+
+                                Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
+
+                                if (!entry.IsDirectory)
                                 {
-                                    zipStream.CopyTo(entryStream);
+                                    using (FileStream entryStream = File.Create(entryPath))
+                                    {
+                                        zipStream.CopyTo(entryStream);
+                                    }
                                 }
                             }
                         }
-                    }      
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error: {ex.Message}");
-                }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
 
-                File.Delete(zipFile);
+                    File.Delete(zipFile);
+                }
+                
             }
         }
 
@@ -273,7 +323,7 @@ namespace Zeros_LethalModder
             await Task.Delay(1000);
             while (File.Exists(selfPath + "/Zeros-Lethal-Modpack.zip"))
             {
-                await Task.Delay(1000);
+                await Task.Delay(5000);
             }
             ProgressText.Content = "Setting up BepInEx";
             string[] deleteMatch = { "winhttp.dll", "doorstop_config.ini", "changelog.txt", "BepInEx" };
